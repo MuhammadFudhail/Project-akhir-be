@@ -22,7 +22,7 @@ const router = express.Router();
  */
 
 // Dashboard data per divisi
-router.get("/dashboard-data", protect, getDashboardData);
+router.get("/dashboard-data", protect, adminOnly, getDashboardData);
 
 // Dashboard data untuk user biasa (filtered by assignedTo)
 router.get("/user-dashboard-data", protect, getUserDashboardData);
