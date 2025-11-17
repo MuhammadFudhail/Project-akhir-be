@@ -4,6 +4,7 @@ const http = require("http");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
+const uploadRoute = require("./routes/upload.route");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -24,6 +25,8 @@ app.use(
 
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/api/upload", uploadRoute);
 
 // Connect MongoDB
 connectDB();
