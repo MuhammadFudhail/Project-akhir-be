@@ -328,6 +328,7 @@ const updateTaskStatus = async (req, res) => {
         }
 
         if (task.status === "Completed") {
+            task.completedAt = new Date();
             task.todoCheckList.forEach(item => item.completed = true);
             task.progress = 100;
         }
@@ -365,6 +366,7 @@ const updateTaskCheckList = async (req, res) => {
 
         if (task.progress === 100) {
             task.status = "Completed";
+            task.completedAt = new Date();
         } else if (task.progress > 0) {
             task.status = "In Progress";
         } else {
@@ -525,6 +527,53 @@ const getUserDashboardData = async (req, res) => {
 };
 
 
+const getEfficiencyReport = async (req, res) => {
+  try {
+    const { type } = req.query; // weekly | monthly
+    const filter = divisionFilter(req);
+
+    const now = new Date();
+    let startDate;
+
+    if (type === "weekly") {
+      startDate = new Date();
+      startDate.setDate(now.getDate() - 7);
+    } else {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+
+    const tasks = await Task.find({
+      ...filter,
+      status: "Completed",
+      completedAt: { $gte: startDate, $lte: now }
+    });
+
+    let onTime = 0;
+    let late = 0;
+
+    tasks.forEach(task => {
+      if (task.completedAt <= task.dueDate) {
+        onTime++;
+      } else {
+        late++;
+      }
+    });
+
+    const total = tasks.length;
+    const efficiency = total === 0 ? 0 : Math.round((onTime / total) * 100);
+
+    res.json({
+      period: type,
+      totalCompleted: total,
+      onTime,
+      late,
+      efficiency
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
     getTasks,
@@ -537,4 +586,5 @@ module.exports = {
     getDashboardData,
     getUserDashboardData,
     getPrioritizedTasks,
+    getEfficiencyReport,
 };

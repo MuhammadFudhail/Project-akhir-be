@@ -11,6 +11,7 @@ const {
   updateTaskStatus,
   updateTaskCheckList,
   getPrioritizedTasks,
+  getEfficiencyReport ,
 } = require("../controllers/taskController");
 
 const router = express.Router();
@@ -32,6 +33,9 @@ router.get("/prioritized", protect, getPrioritizedTasks);
 
 // Semua task dalam divisi
 router.get("/", protect, getTasks);
+
+router.get("/efficiency", protect, adminOnly, getEfficiencyReport);
+
 
 // Detail task by ID (cek divisi dalam controller)
 router.get("/:id", protect, getTaskById);
